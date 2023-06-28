@@ -673,7 +673,8 @@ void AmclNode::runFromBag(const std::string &in_bag_fn, bool trigger_global_loca
   bag.open(in_bag_fn, rosbag::bagmode::Read);
   std::vector<std::string> topics;
   topics.push_back(std::string("tf"));
-  std::string scan_topic_name = "base_scan"; // TODO determine what topic this actually is from ROS
+  std::string scan_topic_name = "laser";
+  //std::string scan_topic_name = "base_scan"; // TODO determine what topic this actually is from ROS
   topics.push_back(scan_topic_name);
   rosbag::View view(bag, rosbag::TopicQuery(topics));
 
@@ -849,7 +850,7 @@ AmclNode::requestMap()
   ROS_INFO("Requesting the map...");
   while(!ros::service::call("static_map", req, resp))
   {
-    ROS_WARN("Request for map failed; trying again...");
+    ROS_WARN("Request for map failed; trying again....");
     ros::Duration d(0.5);
     d.sleep();
   }

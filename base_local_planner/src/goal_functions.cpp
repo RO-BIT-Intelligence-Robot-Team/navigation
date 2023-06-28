@@ -163,7 +163,7 @@ namespace base_local_planner {
     catch(tf2::ExtrapolationException& ex) {
       ROS_ERROR("Extrapolation Error: %s\n", ex.what());
       if (!global_plan.empty())
-        ROS_ERROR("Global Frame: %s Plan Frame size %d: %s\n", global_frame.c_str(), (unsigned int)global_plan.size(), global_plan[0].header.frame_id.c_str());
+        ROS_ERROR("Global Frame1: %s Plan Frame size %d: %s\n", global_frame.c_str(), (unsigned int)global_plan.size(), global_plan[0].header.frame_id.c_str());
 
       return false;
     }
@@ -199,7 +199,7 @@ namespace base_local_planner {
     catch(tf2::ExtrapolationException& ex) {
       ROS_ERROR("Extrapolation Error: %s\n", ex.what());
       if (global_plan.size() > 0)
-        ROS_ERROR("Global Frame: %s Plan Frame size %d: %s\n", global_frame.c_str(), (unsigned int)global_plan.size(), global_plan[0].header.frame_id.c_str());
+        ROS_ERROR("Global Frame2: %s Plan Frame size %d: %s\n", global_frame.c_str(), (unsigned int)global_plan.size(), global_plan[0].header.frame_id.c_str());
 
       return false;
     }

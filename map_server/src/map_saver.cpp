@@ -29,11 +29,13 @@
  */
 
 #include <cstdio>
+#include <iostream>
 #include "ros/ros.h"
 #include "ros/console.h"
 #include "nav_msgs/GetMap.h"
 #include "tf2/LinearMath/Matrix3x3.h"
 #include "geometry_msgs/Quaternion.h"
+#include "nav_msgs/OccupancyGrid.h"
 
 using namespace std;
 
@@ -44,23 +46,29 @@ class MapGenerator
 {
 
   public:
-    MapGenerator(const std::string& mapname, int threshold_occupied, int threshold_free)
-      : mapname_(mapname), saved_map_(false), threshold_occupied_(threshold_occupied), threshold_free_(threshold_free)
+    MapGenerator(const std::string& mapname, const std::string& mappath, int threshold_occupied, int threshold_free)
+      : mapname_(mapname), mappath_(mappath), saved_map_(false), threshold_occupied_(threshold_occupied), threshold_free_(threshold_free)
     {
       ros::NodeHandle n;
+      //ros::NodeHandle pn_;
       ROS_INFO("Waiting for the map");
-      map_sub_ = n.subscribe("map", 1, &MapGenerator::mapCallback, this);
+      map_sub_ = n.subscribe("projected_map", 1, &MapGenerator::mapCallback, this);
+      //pn_.getParam("map_file_path",mappath_);
+      //pn_.param("map_file_path", mappath_, std::string("."));
+      std::cout<<"path: "<<mappath_<<std::endl;
     }
 
     void mapCallback(const nav_msgs::OccupancyGridConstPtr& map)
+    //void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& map)
     {
+      ROS_INFO("map callback");
       ROS_INFO("Received a %d X %d map @ %.3f m/pix",
                map->info.width,
                map->info.height,
                map->info.resolution);
 
 
-      std::string mapdatafile = mapname_ + ".pgm";
+      std::string mapdatafile = mappath_ + mapname_ + ".pgm";
       ROS_INFO("Writing map occupancy data to %s", mapdatafile.c_str());
       FILE* out = fopen(mapdatafile.c_str(), "w");
       if (!out)
@@ -87,7 +95,7 @@ class MapGenerator
       fclose(out);
 
 
-      std::string mapmetadatafile = mapname_ + ".yaml";
+      std::string mapmetadatafile = mappath_ + mapname_ + ".yaml";
       ROS_INFO("Writing map occupancy data to %s", mapmetadatafile.c_str());
       FILE* yaml = fopen(mapmetadatafile.c_str(), "w");
 
@@ -112,8 +120,8 @@ free_thresh: 0.196
       double yaw, pitch, roll;
       mat.getEulerYPR(yaw, pitch, roll);
 
-      fprintf(yaml, "image: %s\nresolution: %f\norigin: [%f, %f, %f]\nnegate: 0\noccupied_thresh: 0.65\nfree_thresh: 0.196\n\n",
-              mapdatafile.c_str(), map->info.resolution, map->info.origin.position.x, map->info.origin.position.y, yaw);
+      fprintf(yaml, "image: %s\nresolution: %f\norigin: [%f, %f, 0]\nnegate: 0\noccupied_thresh: 0.65\nfree_thresh: 0.196\n\n",
+              mapdatafile.c_str(), map->info.resolution, map->info.origin.position.x, map->info.origin.position.y);
 
       fclose(yaml);
 
@@ -122,6 +130,7 @@ free_thresh: 0.196
     }
 
     std::string mapname_;
+    std::string mappath_;
     ros::Subscriber map_sub_;
     bool saved_map_;
     int threshold_occupied_;
@@ -137,6 +146,7 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "map_saver");
   std::string mapname = "map";
+  std::string mappath = "/home/robit/catkin_ws/src/kubo_navigation/data/pgm/";
   int threshold_occupied = 65;
   int threshold_free = 25;
 
@@ -206,12 +216,16 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  MapGenerator mg(mapname, threshold_occupied, threshold_free);
+  MapGenerator mg(mapname, mappath, threshold_occupied, threshold_free);
 
   while(!mg.saved_map_ && ros::ok())
+  {
     ros::spinOnce();
+  }
+
+
+    
 
   return 0;
 }
-
 

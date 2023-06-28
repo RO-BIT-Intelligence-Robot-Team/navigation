@@ -55,6 +55,7 @@
 #include <dynamic_reconfigure/server.h>
 #include <costmap_2d/ObstaclePluginConfig.h>
 #include <costmap_2d/footprint.h>
+#include <kubo_msgs/RobotState.h>
 
 namespace costmap_2d
 {

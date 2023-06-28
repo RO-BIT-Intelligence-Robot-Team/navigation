@@ -38,7 +38,7 @@
 #include <costmap_2d/obstacle_layer.h>
 #include <costmap_2d/costmap_math.h>
 #include <tf2_ros/message_filter.h>
-
+#include <ros/ros.h>
 #include <pluginlib/class_list_macros.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
 
@@ -95,7 +95,7 @@ void ObstacleLayer::onInitialize()
     source_node.param("sensor_frame", sensor_frame, std::string(""));
     source_node.param("observation_persistence", observation_keep_time, 0.0);
     source_node.param("expected_update_rate", expected_update_rate, 0.0);
-    source_node.param("data_type", data_type, std::string("PointCloud"));
+    source_node.param("data_type", data_type, std::string("PointCloud2"));
     source_node.param("min_obstacle_height", min_obstacle_height, 0.0);
     source_node.param("max_obstacle_height", max_obstacle_height, 2.0);
     source_node.param("inf_is_valid", inf_is_valid, false);
@@ -248,7 +248,6 @@ void ObstacleLayer::laserScanCallback(const sensor_msgs::LaserScanConstPtr& mess
   // project the laser into a point cloud
   sensor_msgs::PointCloud2 cloud;
   cloud.header = message->header;
-
   // project the scan into a point cloud
   try
   {
